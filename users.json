@@ -1,0 +1,16 @@
+[
+  {
+    "username": "admin",
+    "password_hash": "$2b$12$SZph1AYIl30dboVhAzUTwe/Tse0kJlHa.mg24W4J3dwbwavGfybs6",
+    "roles": [
+      "admin"
+    ]
+  },
+  {
+    "username": "alice",
+    "password_hash": "$2b$12$jTpNxZVz9g.3RE6z2QaebuXFJwJsiUt/hYN.iJbn2FIoTrX6LSXmu",
+    "roles": [
+      "user"
+    ]
+  }
+]
