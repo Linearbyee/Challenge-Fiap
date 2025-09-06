@@ -5,43 +5,55 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>CyberFortress - Login</title>
     <style>
-      body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Helvetica,Arial,sans-serif;background:#0f172a;margin:0}
-      .wrap{max-width:420px;margin:7vh auto;background:#0b1220;border:1px solid #1f2937;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:28px;color:#e5e7eb}
+      body{font-family:system-ui,Roboto,sans-serif;background:#0f172a;margin:0}
+      .wrap{max-width:520px;margin:7vh auto;background:#0b1220;border:1px solid #1f2937;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:28px;color:#e5e7eb}
       h1{margin:0 0 8px;font-size:22px;color:#93c5fd}
-      p.sub{margin:0 0 20px;color:#94a3b8;font-size:13px}
+      p.sub{margin:0 0 16px;color:#94a3b8;font-size:13px}
       label{display:block;margin:12px 0 6px;color:#cbd5e1;font-size:13px}
-      input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #334155;background:#0a0f1d;color:#e5e7eb;outline:none}
-      input:focus{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,.15)}
-      button{margin-top:14px;width:100%;padding:12px 14px;border:0;border-radius:10px;background:#3b82f6;color:white;font-weight:600;cursor:pointer}
-      button:hover{filter:brightness(1.05)}
-      .msg{margin-top:12px;font-size:13px}
-      .hint{margin-top:16px;color:#94a3b8;font-size:12px}
-      .hint code{background:#0b1220;border:1px solid #1f2937;padding:2px 6px;border-radius:6px;color:#93c5fd}
+      input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #334155;background:#0a0f1d;color:#e5e7eb}
+      .bar{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0;align-items:center}
+      .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#1e293b;color:#e2e8f0;font-size:11px;border:1px solid #334155}
+      .btn{padding:6px 12px;border:0;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
+      .btn-red{background:#ef4444;color:white}
+      .btn-red:hover{filter:brightness(1.1)}
+      .btn-blue{background:#3b82f6;color:white;width:100%;margin-top:12px}
+      .btn-blue:hover{filter:brightness(1.1)}
     </style>
   </head>
   <body>
     <div class="wrap">
       <h1>CyberFortress</h1>
-      <p class="sub">Mecanismo de autenticação com captura de informações.</p>
+      <p class="sub">Autenticação com Threat Intel (AbuseIPDB / Spamhaus).</p>
+
+      <div class="bar">
+        {% if session.user %}
+          <span class="pill">logado: {{ session.user.username }}</span>
+          <span class="pill">roles: {{ session.user.roles|join(", ") }}</span>
+          <!-- botão sair padronizado -->
+          <form method="post" action="/logout" style="display:inline">
+            <button class="btn btn-red">sair</button>
+          </form>
+        {% else %}
+          <span class="pill">não autenticado</span>
+        {% endif %}
+      </div>
+
       {% if message %}
-        <div class="msg">{{ message }}</div>
+        <div style="margin-top:12px">{{ message }}</div>
       {% endif %}
 
       <form method="post" action="/login">
-        <label for="username">Usuário</label>
-        <input id="username" name="username" placeholder="seu usuário" required />
-
-        <label for="password">Senha</label>
-        <input id="password" type="password" name="password" placeholder="••••••••" required />
-
-        <!-- IP público do cliente (preenchido via JS) -->
-        <input type="hidden" id="client_public_ip" name="client_public_ip" value="" />
-
-        <button type="submit">Entrar</button>
+        <label>Usuário</label>
+        <input name="username" required />
+        <label>Senha</label>
+        <input type="password" name="password" required />
+        <input type="hidden" id="client_public_ip" name="client_public_ip" />
+        <button type="submit" class="btn btn-blue">Entrar</button>
       </form>
 
-      <div class="hint">
-        Dica: primeiro acesso gera hashes para usuários demo (<code>admin</code> e <code>alice</code>) com senha <code>123</code>.
+      <div style="margin-top:16px;color:#94a3b8;font-size:12px">
+        Dica: no primeiro acesso, o app cria hashes para os usuários demo
+        (<code>admin</code> e <code>alice</code>) com senha <code>123</code>.
       </div>
     </div>
 
@@ -52,7 +64,7 @@
           const j = await r.json();
           document.getElementById('client_public_ip').value = j.ip || '';
         } catch (e) {
-          console.warn('Falha ao obter IP público:', e);
+          // silencioso
         }
       })();
     </script>
