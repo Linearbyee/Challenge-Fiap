@@ -1,140 +1,95 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CyberFortress • Painel Admin</title>
-  <style>
-    body{font-family:system-ui,Roboto,sans-serif;background:#0f172a;margin:0;color:#e5e7eb}
-    .container{max-width:1080px;margin:32px auto;padding:0 16px}
-    h1{margin:0 0 16px;color:#93c5fd;display:flex;justify-content:space-between;align-items:center}
-    .grid{display:grid;gap:16px;grid-template-columns:repeat(12,1fr)}
-    .card{background:#0b1220;border:1px solid #1f2937;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:16px}
-    .span4{grid-column:span 4}
-    .span8{grid-column:span 8}
-    .span12{grid-column:span 12}
-    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#1e293b;color:#e2e8f0;font-size:12px;border:1px solid #334155;margin-right:6px}
-    table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
-    th, td{border-bottom:1px solid #1f2937;padding:8px;text-align:left;vertical-align:top}
-    th{color:#9ab6ff}
-    code{background:#0b1220;border:1px solid #1f2937;padding:2px 6px;border-radius:6px;color:#93c5fd}
-    input,button{border-radius:10px;border:1px solid #334155;background:#0a0f1d;color:#e5e7eb;padding:10px 12px}
-    button{border:0;background:#3b82f6;cursor:pointer}
-    button.red{background:#ef4444}
-    button:hover{filter:brightness(1.05)}
-    .muted{color:#94a3b8}
-    .ok{color:#34d399}
-    .bad{color:#f87171}
-    .nowrap{white-space:nowrap}
-  </style>
+    <meta charset="UTF-8">
+    <title>Painel Admin - CyberFortress</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f7fa;
+        }
+        h1 {
+            color: #222;
+        }
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        .logout {
+            float: right;
+            margin-top: -40px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            background-color: #fff;
+            box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .decision-allow { color: green; font-weight: bold; }
+        .decision-review { color: orange; font-weight: bold; }
+        .decision-block { color: red; font-weight: bold; }
+        ul { margin: 0; padding-left: 20px; }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>
-      CyberFortress • Painel Admin
-      <form method="post" action="/logout" style="display:inline">
-        <button class="red">sair</button>
-      </form>
-    </h1>
-
-    <div class="grid">
-      <!-- STATUS / AÇÕES -->
-      <div class="card span12">
-        <div class="pill">janela: {{ cfg.window_min }} min</div>
-        <div class="pill">limite falhas: {{ cfg.max_fails }}</div>
-        <div class="pill">ban: {{ cfg.block_min }} min</div>
-        <div class="pill">Spamhaus carregado há: {{ spamhaus.loaded_ago_sec }}s</div>
-        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-          <button id="btn-refresh-spamhaus">Atualizar Spamhaus</button>
-          <button id="btn-clear-rate" class="red">Limpar rate-limit</button>
-          <div>
-            <input id="ip-unblock" placeholder="IP para desbloquear" />
-            <button id="btn-unblock" class="red">Desbloquear IP</button>
-          </div>
-        </div>
-        <div id="msg" class="muted" style="margin-top:8px"></div>
-      </div>
-
-      <!-- RATE-LIMIT STATE -->
-      <div class="card span4">
-        <h3>Rate-limit / Bans</h3>
-        {% if rl %}
-          <table>
-            <thead><tr><th>IP</th><th>Falhas</th><th>Status</th><th>Até</th></tr></thead>
-            <tbody>
-              {% for ip, info in rl.items() %}
-                <tr>
-                  <td class="nowrap"><code>{{ ip }}</code></td>
-                  <td>{{ info.fails_in_window }}</td>
-                  <td>{% if info.blocked %}<span class="bad">BLOQUEADO</span>{% else %}<span class="ok">OK</span>{% endif %}</td>
-                  <td>{% if info.block_until and info.blocked %}{{ info.block_until }}{% else %}-{% endif %}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        {% else %}
-          <div class="muted">Nenhum IP bloqueado.</div>
-        {% endif %}
-      </div>
-
-      <!-- LOGS RECENTES -->
-      <div class="card span8">
-        <h3>Últimos logs</h3>
-        {% if logs %}
-          <table>
-            <thead><tr><th>ts</th><th>user</th><th>status</th><th>ip</th><th>geo</th><th>intel</th></tr></thead>
-            <tbody>
-              {% for e in logs %}
-                <tr>
-                  <td class="nowrap">{{ e.ts }}</td>
-                  <td class="nowrap">{{ e.username or "-" }}</td>
-                  <td>{% if e.status == "SUCESSO" %}
-                        <span class="ok">SUCESSO</span>
-                      {% elif e.status == "BLOQUEADO" %}
-                        <span class="bad">BLOQUEADO</span>
-                      {% else %}
-                        <span class="muted">FALHA</span>
-                      {% endif %}
-                  </td>
-                  <td class="nowrap"><code>{{ e.ip }}</code></td>
-                  <td class="nowrap">
-                    {% set g = e.geo or {} %}
-                    {{ g.city or "-" }}/{{ g.region or "-" }} — {{ g.country_name or "-" }}
-                  </td>
-                  <td>
-                    {% set ti = e.threat_intel or {} %}
-                    {% set ab = ti.abuseipdb or {} %}
-                    {% set sh = ti.spamhaus or {} %}
-                    score: {{ ab.abuseConfidenceScore or 0 }},
-                    spamhaus: {% if sh and sh.listed %}<span class="bad">{{ sh.list }}</span>{% else %}<span class="ok">não listado</span>{% endif %}
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        {% else %}
-          <div class="muted">Sem logs ainda.</div>
-        {% endif %}
-      </div>
+    <h1>Painel Administrativo - CyberFortress</h1>
+    <div class="logout">
+        <a href="{{ url_for('logout') }}">🔒 Logout</a>
     </div>
-  </div>
 
-  <script>
-    const msg = document.getElementById('msg');
-    async function postJSON(url, body) {
-      const r = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});
-      const j = await r.json().catch(()=>({}));return {ok:r.ok,status:r.status,data:j};
-    }
-    document.getElementById('btn-refresh-spamhaus').addEventListener('click',async()=>{
-      msg.textContent='Atualizando Spamhaus...';const resp=await postJSON('/intel-refresh',{});msg.textContent=resp.ok?'Atualizado.':`Falha: ${resp.status}`;
-    });
-    document.getElementById('btn-clear-rate').addEventListener('click',async()=>{
-      if(!confirm('Limpar rate-limit?'))return;msg.textContent='Limpando...';const resp=await postJSON('/ratelimit/clear',{});msg.textContent=resp.ok?'Limpo.':`Falha: ${resp.status}`;if(resp.ok)location.reload();
-    });
-    document.getElementById('btn-unblock').addEventListener('click',async()=>{
-      const ip=document.getElementById('ip-unblock').value.trim();if(!ip){msg.textContent='Informe IP.';return;}
-      msg.textContent=`Desbloqueando ${ip}...`;const resp=await postJSON('/ratelimit/unblock',{ip});msg.textContent=resp.ok?`IP ${ip} desbloqueado.`:`Falha ${resp.status}`;if(resp.ok)location.reload();
-    });
-  </script>
+    <h2>Últimos Logins</h2>
+    <table>
+        <tr>
+            <th>Usuário</th>
+            <th>IP</th>
+            <th>Score</th>
+            <th>Decisão</th>
+            <th>Regras Avaliadas</th>
+        </tr>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.username }}</td>
+            <td>{{ log.ip }}</td>
+            <td>{{ log.score }}</td>
+            <td>
+                {% if log.decision == "BLOCK" %}
+                    <span class="decision-block">❌ {{ log.decision }}</span>
+                {% elif log.decision == "REVIEW" %}
+                    <span class="decision-review">⚠️ {{ log.decision }}</span>
+                {% else %}
+                    <span class="decision-allow">✅ {{ log.decision }}</span>
+                {% endif %}
+            </td>
+            <td>
+                <ul>
+                    {% for r in log.rules %}
+                        <li>
+                            {{ r.rule }} → 
+                            {% if r.passed %}
+                                ✅ OK
+                            {% else %}
+                                ❌ Falhou (peso: {{ r.weight }})
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
