@@ -4,26 +4,91 @@
     <meta charset="UTF-8">
     <title>CyberFortress - Login</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .login-box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px; text-align: center; }
-        .alert { padding: 10px; border-radius: 5px; margin-bottom: 10px; }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .warning { background: #fff3cd; color: #856404; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #141e30, #243b55);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .login-box {
+            background: #1c1c1c;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0px 0px 20px rgba(0,0,0,0.6);
+            text-align: center;
+            width: 350px;
+            color: #fff;
+        }
+
+        .login-box h2 {
+            margin-bottom: 20px;
+            font-size: 26px;
+            color: #00c6ff;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background: #2b2b2b;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .input-field:focus {
+            border-color: #00c6ff;
+            outline: none;
+            background: #333;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #0072ff, #00c6ff);
+            transform: scale(1.03);
+        }
+
+        .alert {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        .success { background: #1e4620; color: #a8e6a3; }
+        .error { background: #461e1e; color: #f2a8a8; }
+        .warning { background: #463f1e; color: #f2e6a8; }
     </style>
 </head>
 <body>
     <div class="login-box">
-        <h2>Login</h2>
+        <h2>🔐 CyberFortress</h2>
         {% if message %}
             <div class="alert {% if '✅' in message %}success{% elif '❌' in message %}error{% else %}warning{% endif %}">
                 {{ message }}
             </div>
         {% endif %}
         <form method="POST" action="/login">
-            <input type="text" name="username" placeholder="Usuário" required><br><br>
-            <input type="password" name="password" placeholder="Senha" required><br><br>
-            <button type="submit">Entrar</button>
+            <input type="text" name="username" placeholder="Usuário" class="input-field" required>
+            <input type="password" name="password" placeholder="Senha" class="input-field" required>
+            <button type="submit" class="btn">Entrar</button>
         </form>
     </div>
 </body>
