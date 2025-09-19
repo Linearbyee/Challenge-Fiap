@@ -1,16 +1,20 @@
-[
-  {
-    "username": "admin",
-    "password_hash": "$2b$12$SZph1AYIl30dboVhAzUTwe/Tse0kJlHa.mg24W4J3dwbwavGfybs6",
+{
+  "admin": {
+    "password": "$2b$12$F2PN9Wx2dcxidsAhlmC/z.Q76FCSXNjjpepeRhS0d9TBuGOLFBeDW",
     "roles": [
       "admin"
     ]
   },
-  {
-    "username": "alice",
-    "password_hash": "$2b$12$jTpNxZVz9g.3RE6z2QaebuXFJwJsiUt/hYN.iJbn2FIoTrX6LSXmu",
+  "alice": {
+    "password": "$2b$12$Py1YIfVl4mvuZMb/rJ9TL.enl1Ksi5xN1T4Lnd3TC4HKI0JI2Of36",
+    "roles": [
+      "user"
+    ]
+  },
+  "pedro": {
+    "password": "$2b$12$X6IlIP/ANCYE27PTLaAMQebbE3XDV3QL7uDMMGvwChpRq0bD.sLQe",
     "roles": [
       "user"
     ]
   }
-]
+}

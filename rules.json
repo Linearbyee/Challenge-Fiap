@@ -1,5 +1,23 @@
 [
-  { "name": "IP malicioso AbuseIPDB", "condition": "event.get('abuseScore', 0) >= 50", "weight": 30 },
-  { "name": "IP listado no Spamhaus", "condition": "event.get('spamhaus', False) == True", "weight": 25 },
-  { "name": "Muitas falhas seguidas", "condition": "event.get('failedAttempts', 0) > 5", "weight": 20 }
+  {
+    "name": "IP malicioso AbuseIPDB",
+    "field": "abuseScore",
+    "op": ">=",
+    "value": 50,
+    "weight": 30
+  },
+  {
+    "name": "IP listado no Spamhaus",
+    "field": "spamhaus",
+    "op": "==",
+    "value": true,
+    "weight": 25
+  },
+  {
+    "name": "Muitas falhas seguidas",
+    "field": "failedAttempts",
+    "op": ">",
+    "value": 5,
+    "weight": 20
+  }
 ]
