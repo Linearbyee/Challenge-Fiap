@@ -1,66 +1,86 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <title>Painel Admin - CyberFortress</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; background:#f4f7fa; padding:22px; }
-        header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
-        h1 { margin:0; }
-        a.logout { text-decoration:none; padding:8px 12px; background:#fff; border-radius:6px; border:1px solid #ddd; color:#222; }
-        table { width:100%; border-collapse:collapse; background:#fff; box-shadow:0 3px 12px rgba(0,0,0,0.06); }
-        th, td { padding:10px 12px; border-bottom:1px solid #eee; text-align:left; vertical-align:top; }
-        th { background:#0d6efd; color:#fff; }
-        tr:nth-child(even) td { background:#fbfdff; }
-        .decision-allow { color:green; font-weight:700; }
-        .decision-review { color:orange; font-weight:700; }
-        .decision-block { color:red; font-weight:700; }
-        ul.rules { margin:0; padding-left:18px; }
-        form.inline { display:inline-block; margin:0; }
-        button.small { padding:6px 10px; border-radius:6px; border:0; cursor:pointer; background:#0d6efd; color:#fff; }
+        body { font-family: Arial, sans-serif; background: #eef2f3; padding: 20px; }
+        h1 { color: #333; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background: #ddd; }
+        .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; }
+        .logout { background: #f44336; color: white; float: right; }
+        .chart-container { width: 80%; margin: 30px auto; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Painel Administrativo - CyberFortress</h1>
-        <div>
-            <a class="logout" href="{{ url_for('logout') }}">🔒 Logout</a>
-        </div>
-    </header>
+    <h1>Painel Admin</h1>
+    <a href="/logout"><button class="btn logout">Sair</button></a>
 
-    <h3>Últimos Logins</h3>
+    <h2>Últimos Logs</h2>
     <table>
-        <tr><th>Usuário</th><th>IP</th><th>Score</th><th>Decisão</th><th>Regras Avaliadas</th><th>Ações</th></tr>
+        <tr>
+            <th>Usuário</th>
+            <th>IP</th>
+            <th>Decisão</th>
+            <th>Score</th>
+            <th>Timestamp</th>
+        </tr>
         {% for log in logs %}
         <tr>
-            <td>{{ log.username or "-" }}</td>
-            <td>{{ log.ip or "-" }}</td>
-            <td>{{ log.score if log.score is not none else "-" }}</td>
-            <td>
-                {% if log.decision == "BLOCK" %}
-                    <span class="decision-block">❌ BLOCK</span>
-                {% elif log.decision == "REVIEW" %}
-                    <span class="decision-review">⚠️ REVIEW</span>
-                {% else %}
-                    <span class="decision-allow">✅ ALLOW</span>
-                {% endif %}
-            </td>
-            <td>
-                <ul class="rules">
-                {% for r in log.rules %}
-                    <li>{{ r.rule }} → {% if r.passed %}✅ OK{% else %}❌ Falhou (peso: {{ r.weight }}){% endif %}</li>
-                {% endfor %}
-                </ul>
-            </td>
-            <td>
-                <form class="inline" method="POST" action="{{ url_for('admin_unblock') }}">
-                    <input type="hidden" name="ip" value="{{ log.ip }}">
-                    <button class="small" type="submit">Desbloquear</button>
-                </form>
-            </td>
+            <td>{{ log.username }}</td>
+            <td>{{ log.ip }}</td>
+            <td>{{ log.decision }}</td>
+            <td>{{ log.score }}</td>
+            <td>{{ log.timestamp }}</td>
         </tr>
         {% endfor %}
     </table>
+
+    <h2>Estatísticas de Regras</h2>
+    <div class="chart-container">
+        <canvas id="rulesChart"></canvas>
+    </div>
+
+    <script>
+    const stats = JSON.parse(`{{ stats | tojson | safe }}`);
+    const labels = Object.keys(stats);
+    const passou = labels.map(r => stats[r].passou || 0);
+    const falhou = labels.map(r => stats[r].falhou || 0);
+
+    const ctx = document.getElementById('rulesChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Passou',
+                    data: passou,
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)'
+                },
+                {
+                    label: 'Falhou',
+                    data: falhou,
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Resultados das Regras de Segurança'
+                }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
 </body>
 </html>

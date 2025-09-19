@@ -1,42 +1,30 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <title>CyberFortress - Login</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
     <style>
-        body { font-family: Arial, sans-serif; background:#f4f7fa; height:100vh; display:flex; align-items:center; justify-content:center; }
-        .card { background:#fff; padding:28px; border-radius:8px; box-shadow:0 4px 18px rgba(0,0,0,0.06); width:360px; }
-        h1 { text-align:center; margin:0 0 12px; color:#222; }
-        .message { padding:10px; border-radius:6px; margin-bottom:12px; font-weight:600; text-align:center; }
-        .msg-success { background:#d4edda; color:#155724; }
-        .msg-warning { background:#fff3cd; color:#856404; }
-        .msg-error { background:#f8d7da; color:#721c24; }
-        input { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ddd; }
-        button { width:100%; padding:10px; background:#0d6efd; color:#fff; border:0; border-radius:6px; font-weight:700; cursor:pointer; }
-        button:hover { background:#0b5ed7; }
-        .links { margin-top:10px; text-align:center; font-size:14px; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .login-box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px; text-align: center; }
+        .alert { padding: 10px; border-radius: 5px; margin-bottom: 10px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>Login</h1>
-
+    <div class="login-box">
+        <h2>Login</h2>
         {% if message %}
-            <div class="message {% if '✅' in message %}msg-success{% elif '⚠️' in message %}msg-warning{% else %}msg-error{% endif %}">
+            <div class="alert {% if '✅' in message %}success{% elif '❌' in message %}error{% else %}warning{% endif %}">
                 {{ message }}
             </div>
         {% endif %}
-
-        <form method="POST" action="{{ url_for('login') }}">
-            <input name="username" placeholder="Usuário" required>
-            <input name="password" type="password" placeholder="Senha" required>
+        <form method="POST" action="/login">
+            <input type="text" name="username" placeholder="Usuário" required><br><br>
+            <input type="password" name="password" placeholder="Senha" required><br><br>
             <button type="submit">Entrar</button>
         </form>
-
-        <div class="links">
-            <small>Use <strong>admin / 123</strong> para painel admin (demo)</small>
-        </div>
     </div>
 </body>
 </html>
